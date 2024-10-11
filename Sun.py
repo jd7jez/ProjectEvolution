@@ -1,8 +1,9 @@
 import pygame
 
 class Sun:
-    def __init__(self, sun_width, env_width, env_height, start, speed, ring2=3, ring3=2, energy_yields=[15, 10, 5]):
-        self.WIDTH = sun_width
+    def __init__(self, env_width, env_height, start, speed, sun_widths=[150, 130, 110, 90, 70], ring2=3, ring3=2, energy_yields=[15, 10, 5]):
+        self.widths = sun_widths
+        self.WIDTH = self.widths[0]
         self.HEIGHT = env_height
         self.pos = start
         self.speed = speed
@@ -24,6 +25,13 @@ class Sun:
         if self.pos < self.min_pos:
             self.pos = self.max_pos
             self.day += 1
+            wi = self.day % 10
+            if wi < 5:
+                self.WIDTH = self.widths[wi]
+            else:
+                self.WIDTH = self.widths[::-1][wi-5]
+
+
 
     def draw(self, surface):
         pygame.draw.rect(surface, self.YELLOW3, ((self.pos - ((self.WIDTH // 2) + (self.WIDTH // self.ring3_ratio))), 0, self.WIDTH + (2 * (self.WIDTH // self.ring3_ratio)), self.HEIGHT))

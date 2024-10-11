@@ -1,16 +1,19 @@
 import pygame
+import random
 
 class Plant:
-    def __init__(self, x, y, initial_energy=30.0, energy_change_rate=1.0, size_change_rate=1.0):
+    def __init__(self, x, y, birth_date, initial_energy=50.0, energy_change_rate=1.0, size_change_rate=1.0):
         self.x = x
         self.y = y
+        self.birth_date = birth_date
         self.energy = initial_energy
         self.energy_change_rate = energy_change_rate
         self.size_change_rate = size_change_rate
         self.size = 10.0
-        self.color1 = int(200 * (self.energy_change_rate / 3.0))
-        self.color3 = int(200 * (self.size_change_rate / 2.0))
+        self.color1 = int(255 * (self.energy_change_rate / 5.0))
+        self.color3 = int(255 * (self.size_change_rate / 4.0))
         self.vitality = 100
+        self.birth_cooldown = 10
 
     def draw(self, surface):
         green_score = int(255 * (self.vitality / 100)) if self.vitality > 0 else 0
@@ -26,8 +29,19 @@ class Plant:
         if self.energy >= 10:
             if self.vitality < 100:
                 self.vitality += 1
-            if self.energy > 30:
-                self.size += self.size_change_rate
+            if self.energy > 50:
+                if self.energy > 400:
+                    reproduce_odds = random.random()
+                    if reproduce_odds < 0.5:
+                        if self.birth_cooldown == 0:
+                            self.birth_cooldown = 10
+                            return 1
+                        else:
+                            self.birth_cooldown -= 1
+                    else:
+                        self.size += self.size_change_rate
+                else:
+                    self.size += self.size_change_rate
         elif self.energy < 10:
             if self.size > 5:
                 self.size -= self.size_change_rate
@@ -37,3 +51,15 @@ class Plant:
             return -1
         else:
             return 0
+    
+    def birth(self, width, height, date):
+        ecr_min = max(self.energy_change_rate-0.25, 0.25)
+        ecr_max = min(self.energy_change_rate+0.25, 5.0)
+        scr_min = max(self.size_change_rate-0.25, 0.5)
+        scr_max = min(self.size_change_rate+0.25, 4.0)
+        return Plant(x=random.randint(max(0, self.x-50), min(self.x+50, width)), y=random.randint(max(0, self.y-50), min(self.y+50, height)),
+                     birth_date=date,
+                     initial_energy=50.0,
+                     energy_change_rate=(random.random() * (ecr_max - ecr_min)) + ecr_min,
+                     size_change_rate=(random.random() * (scr_max - scr_min)) + scr_min)
+        
